@@ -1,0 +1,27 @@
+package com.msp1974.vacompanion.broadcasts
+
+import android.content.Context
+import android.content.Intent
+import com.msp1974.vacompanion.utils.Logger
+
+class BroadcastSender {
+    companion object {
+        private var log = Logger()
+
+        internal const val WAKE_WORD_DETECTED = "WAKE_WORD_DETECTED"
+        internal const val SATELLITE_STARTED = "SATELLITE_STARTED"
+        internal const val SATELLITE_STOPPED = "SATELLITE_STOPPED"
+        internal const val TOAST_MESSAGE = "TOAST_MESSAGE"
+        internal const val WEBVIEW_CRASH = "WEBVIEW_CRASH"
+        internal const val VERSION_MISMATCH = "VERSION_MISMATCH"
+
+        fun sendBroadcast(context: Context, action: String, extra: String? = null) {
+            val intent = Intent(action)
+            if (extra != null) {
+                intent.putExtra("extra", extra)
+            }
+            log.i("Sending broadcast: $action")
+            context.sendBroadcast(intent)
+        }
+    }
+}
