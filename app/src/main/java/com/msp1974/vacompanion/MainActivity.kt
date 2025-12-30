@@ -97,6 +97,8 @@ class MainActivity : AppCompatActivity(), EventListener, ComponentCallbacks2 {
     private var screenOffStartUp: Boolean = false
     private var screenOffInProgress: Boolean = false
     private var screenSleepWaitJob: Job? = null
+    private var autoRedirectHandler: Handler? = null
+    private var autoRedirectRunnable: Runnable? = null
 
 
 
@@ -285,9 +287,13 @@ class MainActivity : AppCompatActivity(), EventListener, ComponentCallbacks2 {
                     val url = AuthUtils.getURL(AuthUtils.getHAUrl(config))
                     log.d("Loading URL: $url")
                     webView.loadUrl(url)
+
+                    // Start auto redirect timer
+                    startAutoRedirectTimer()
                 }
                 BroadcastSender.SATELLITE_STOPPED -> {
                     viewModel.setSatelliteRunning(false)
+                    stopAutoRedirectTimer()
                     if (!config.backgroundTaskRunning) {
                         finishAndRemoveTask()
                     }
@@ -389,12 +395,51 @@ class MainActivity : AppCompatActivity(), EventListener, ComponentCallbacks2 {
         screen.setScreenAlwaysOn(window, config.screenAlwaysOn)
     }
 
+    private fun startAutoRedirectTimer() {
+        stopAutoRedirectTimer()
+        if (config.autoRedirectTime > 0) {
+            autoRedirectHandler = Handler(Looper.getMainLooper())
+            autoRedirectRunnable = Runnable {
+                checkAutoRedirect()
+                // Schedule next check
+                autoRedirectHandler?.postDelayed(autoRedirectRunnable!!, 10000) // Check every 10 seconds
+            }
+            autoRedirectHandler?.postDelayed(autoRedirectRunnable!!, 10000)
+        }
+    }
+
+    private fun stopAutoRedirectTimer() {
+        autoRedirectRunnable?.let { autoRedirectHandler?.removeCallbacks(it) }
+        autoRedirectRunnable = null
+        autoRedirectHandler = null
+    }
+
+    private fun checkAutoRedirect() {
+        if (config.autoRedirectTime > 0 && config.homeUrl.isNotEmpty() && System.currentTimeMillis() - config.lastActivity > config.autoRedirectTime * 1000L) {
+            // Check if current path is not home
+            val homePath = if (config.homeUrl.startsWith("http")) {
+                try {
+                    java.net.URL(config.homeUrl).path
+                } catch (e: Exception) {
+                    config.homeUrl
+                }
+            } else {
+                config.homeUrl
+            }
+            if (config.currentPath != homePath) {
+                log.d("Auto redirecting to home: $config.homeUrl")
+                webView.loadUrl(config.homeUrl)
+            }
+        }
+    }
+
     override fun onDestroy() {
         log.d("Main Activity destroyed")
         screen.setScreenTimeout(config.screenTimeout)
         config.eventBroadcaster.removeListener(this)
 
         unregisterReceiver(satelliteBroadcastReceiver)
+        stopAutoRedirectTimer()
         super.onDestroy()
     }
 

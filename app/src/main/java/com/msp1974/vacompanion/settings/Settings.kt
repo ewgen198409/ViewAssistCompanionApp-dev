@@ -203,6 +203,14 @@ class APPConfig(val context: Context) {
         onValueChangedListener(property, oldValue, newValue)
     }
 
+    var homeUrl: String by Delegates.observable("") { property, oldValue, newValue ->
+        onValueChangedListener(property, oldValue, newValue)
+    }
+
+    var autoRedirectTime: Int by Delegates.observable(0) { property, oldValue, newValue ->
+        onValueChangedListener(property, oldValue, newValue)
+    }
+
 
 
     // SharedPreferences
@@ -337,6 +345,12 @@ class APPConfig(val context: Context) {
         }
         if (settings.has("screen_timeout")) {
             screenTimeout = settings.getInt("screen_timeout") * 1000
+        }
+        if (settings.has("home_url")) {
+            homeUrl = settings.getString("home_url")
+        }
+        if (settings.has("auto_redirect_time")) {
+            autoRedirectTime = settings.getInt("auto_redirect_time")
         }
 
     }

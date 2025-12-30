@@ -92,6 +92,9 @@ class CustomWebView @JvmOverloads constructor(
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (::config.isInitialized) {
+            config.lastActivity = System.currentTimeMillis()
+        }
         if (requestDisallow) {
             requestDisallowInterceptTouchEvent(true)
         }
