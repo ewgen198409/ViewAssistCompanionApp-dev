@@ -4,6 +4,8 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Android-green.svg)](https://developer.android.com)
 
+Автор приложения https://github.com/msp1974/ViewAssistCompanionApp/tree/dev
+
 **View Assist Companion** - это Android-приложение, которое превращает ваше Android-устройство в умный голосовой помощник для Home Assistant. Приложение работает как Wyoming satellite, обеспечивая локальное распознавание голосовых команд без использования облачных сервисов Google.
 
 ## ✨ Особенности
